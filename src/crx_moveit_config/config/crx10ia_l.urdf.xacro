@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="crx10ia_l">
+    <xacro:arg name="initial_positions_file" default="$(find crx_control)/config/initial_positions.yaml" />
+
+    <!-- Import crx10ia_l urdf file -->
+    <xacro:include filename="$(find crx_description)/urdf/crx10ia_l/crx10ia_l.xacro" />
+
+    <!-- Import fake system ros2_control for MoveIt planning demo -->
+    <xacro:include filename="$(find crx_control)/urdf/crx10ia_l_fake_system.xacro" />
+
+    <xacro:crx10ia_l_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+
+</robot>

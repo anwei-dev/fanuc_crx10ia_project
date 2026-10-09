@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<robot name="crx10ia_l" xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <xacro:include filename="$(find crx_description)/urdf/crx10ia_l/crx10ia_l_macro.xacro"/>
+  <xacro:include filename="$(find crx_control)/urdf/crx_gazebo.xacro"/>
+
+  <xacro:crx10ia_l />
+  <xacro:crx_ros2_control_gazebo />
+
+</robot>
