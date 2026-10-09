@@ -3,6 +3,9 @@ build/
 install/
 log/
 
+# ROS 日志（沙箱重定向）
+.ros_log/
+
 # 编辑器
 .vscode/
 .idea/
