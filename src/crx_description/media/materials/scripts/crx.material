@@ -1,0 +1,14 @@
+// Gazebo/Blue with HSV saturation reduced from 100% to 65%.
+// Preserve the original hue, value and specular settings.
+material CRX/GripperBlue
+{
+  technique
+  {
+    pass ambient
+    {
+      ambient 0.35 0.35 1
+      diffuse 0.35 0.35 1
+      specular 0.1 0.1 0.1 1 1
+    }
+  }
+}

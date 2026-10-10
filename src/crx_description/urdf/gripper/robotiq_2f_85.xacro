@@ -235,12 +235,36 @@
             <mimic joint="${prefix}robotiq_85_left_knuckle_joint" />
             <limit lower="0.0" upper="0.8" velocity="0.5" effort="50" />
         </joint>
+        <!-- Colour by mechanical function to make the linkage easy to follow. -->
+        <gazebo reference="${prefix}robotiq_85_base_link">
+            <material>CRX/GripperBlue</material>
+        </gazebo>
+        <gazebo reference="${prefix}robotiq_85_left_knuckle_link">
+            <material>Gazebo/Orange</material>
+        </gazebo>
+        <gazebo reference="${prefix}robotiq_85_right_knuckle_link">
+            <material>Gazebo/Orange</material>
+        </gazebo>
+        <gazebo reference="${prefix}robotiq_85_left_inner_knuckle_link">
+            <material>Gazebo/Yellow</material>
+        </gazebo>
+        <gazebo reference="${prefix}robotiq_85_right_inner_knuckle_link">
+            <material>Gazebo/Yellow</material>
+        </gazebo>
+        <gazebo reference="${prefix}robotiq_85_left_finger_link">
+            <material>Gazebo/White</material>
+        </gazebo>
+        <gazebo reference="${prefix}robotiq_85_right_finger_link">
+            <material>Gazebo/White</material>
+        </gazebo>
         <!-- Gazebo Classic contact parameters belong in gazebo extensions. -->
         <gazebo reference="${prefix}robotiq_85_left_finger_tip_link">
+            <material>Gazebo/Black</material>
             <mu1>1.0</mu1><mu2>1.0</mu2>
             <kp>100000</kp><kd>1</kd>
         </gazebo>
         <gazebo reference="${prefix}robotiq_85_right_finger_tip_link">
+            <material>Gazebo/Black</material>
             <mu1>1.0</mu1><mu2>1.0</mu2>
             <kp>100000</kp><kd>1</kd>
         </gazebo>

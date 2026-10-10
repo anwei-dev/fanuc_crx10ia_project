@@ -3,7 +3,7 @@ project(crx_description)
 
 find_package(ament_cmake REQUIRED)
 
-install(DIRECTORY meshes urdf launch rviz
+install(DIRECTORY meshes urdf launch rviz media
   DESTINATION share/${PROJECT_NAME}
 )
 

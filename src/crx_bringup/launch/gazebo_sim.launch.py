@@ -24,7 +24,16 @@ ARGUMENTS = [
     DeclareLaunchArgument('Y', default_value='0', description='Location Yaw on Gazebo'),
 ]
 
-ENVIRONMENT = [SetEnvironmentVariable(name='GAZEBO_MODEL_PATH', value=os.path.dirname(get_package_share_directory("crx_description")))]
+ENVIRONMENT = [
+    SetEnvironmentVariable(name='GAZEBO_MODEL_PATH', value=os.path.dirname(get_package_share_directory("crx_description"))),
+    SetEnvironmentVariable(
+        name='GAZEBO_RESOURCE_PATH',
+        value=os.pathsep.join(filter(None, [
+            get_package_share_directory('crx_description'),
+            os.environ.get('GAZEBO_RESOURCE_PATH', ''),
+        ])),
+    ),
+]
 
 
 def generate_launch_description():
