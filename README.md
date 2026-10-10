@@ -1,17 +1,18 @@
 # FANUC CRX-10iA/L ROS 2 Workspace
 
 ROS 2 (Humble) workspace for the FANUC CRX-10iA/L collaborative robot, supporting
-RViz visualization, Gazebo simulation, MoveIt 2 motion planning, and real-hardware
-control via ros2_control.
+RViz visualization, Gazebo simulation, and MoveIt 2 motion planning with
+ros2_control simulation controllers. See [the project guide](src/README.md)
+for development commands and supported simulation entry points.
 
 ## Packages
 
 | Package | Layer | Responsibility |
 |---------|-------|----------------|
 | `crx_description` | Description | URDF/Xacro geometry, meshes and RViz config |
-| `crx_control` | Control | ros2_control hardware interfaces (real / mock / Gazebo) and controller config |
+| `crx_control` | Control | Gazebo ros2_control integration and controller config |
 | `crx_moveit_config` | Planning | MoveIt 2 SRDF, kinematics, planners and controller mapping |
-| `crx_bringup` | Orchestration | Unified launch files for all use-cases |
+| `crx_bringup` | Orchestration | Simulation and visualization launch orchestration |
 
 Dependency flow (single direction):
 
@@ -45,15 +46,4 @@ ros2 launch crx_bringup gazebo_sim.launch.py headless:=false
 
 ```bash
 ros2 launch crx_bringup moveit_demo.launch.py
-```
-
-### 4. Real robot or mock hardware
-
-```bash
-# Mock hardware (no robot required)
-ros2 launch crx_bringup robot_bringup.launch.py use_mock_hardware:=true
-
-# Real robot (Ethernet/IP)
-ros2 launch crx_bringup robot_bringup.launch.py \
-    use_mock_hardware:=false robot_ip:=192.168.150.2
 ```

@@ -19,7 +19,6 @@
 | `crx_control/config/ros2_controllers.yaml` | 增加单关节 JointTrajectoryController，按时间插值开合 |
 | `crx_control/package.xml` | 复用 joint_trajectory_controller，无需 gripper_controllers |
 | `crx_bringup/launch/gazebo_sim.launch.py` | 修正模型话题参数、显式字符串参数、自动加载三个控制器 |
-| `crx_bringup/launch/robot_bringup.launch.py` | 仅修正共享模型参数的字符串类型；未扩展真实设备能力 |
 | `crx_moveit_config/config/crx10ia_l.urdf.xacro` | 与 Gazebo 使用同一模型 |
 | `crx_moveit_config/config/crx10ia_l.srdf` | 增加 gripper 规划组、末端执行器、open/closed 姿态和机械连接处的碰撞豁免 |
 | `crx_moveit_config/config/moveit_controllers.yaml` | 绑定夹爪 FollowJointTrajectory action，清理原有重复键 |
