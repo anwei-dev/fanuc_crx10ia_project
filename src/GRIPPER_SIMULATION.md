@@ -10,7 +10,7 @@
 | --- | --- |
 | `crx_description/urdf/gripper/robotiq_2f_85.xacro`（新增） | 夹爪模型、一个主动关节和五个 mimic 关节、指尖接触参数 |
 | `crx_description/meshes/robotiq/`（新增） | 2F-85 可视化/碰撞网格、来源说明与 LICENSE |
-| `crx_description/urdf/crx10ia_l/crx10ia_l_macro.xacro` | 安装夹爪、增加 tool_mount，移动 tcp，保留相机安装位置 |
+| `crx_description/urdf/crx10ia_l/crx10ia_l_macro.xacro` | 安装夹爪、增加 tool_mount，移动 tcp；相机安装已按新设计更新 |
 | `crx_description/package.xml` | 补充引入资源的 BSD-3-Clause 许可 |
 | `crx_description/launch/view_robot.launch.py` | 显式将 robot_description 作为字符串传递 |
 | `crx_control/urdf/robotiq_gazebo_control.xacro`（新增） | Gazebo 控制接口和五个联动关系 |
@@ -34,7 +34,8 @@
 安装链为 `link_6 → flange → tool_mount → robotiq_85_base_link → tcp`。
 `tool_mount` 保留原 TCP 的朝向；新 `tcp` 位于夹爪基座局部 Z 轴前方 0.145 m。
 这是固定抓取参考点，手指实际高度会随开度变化，可按抓取任务调整 `gripper-tcp` 的 origin。
-相机继续位于原安装位置（父坐标系改名为 tool_mount），不随新 TCP 前移。
+相机现已重新设计为夹爪基座侧面的倾斜安装，瞄准 TCP；位置、支架和验证结果见
+[相机安装说明](docs/CAMERA_INSTALLATION.md)。
 
 主动关节为 `robotiq_85_left_knuckle_joint`，0 rad 表示张开，0.7929 rad 表示闭合。
 控制命令的 position 是关节角度，**不是以米表示的指间距离**。

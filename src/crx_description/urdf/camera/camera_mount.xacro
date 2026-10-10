@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Side bracket stays outside the fingers' opening plane. All dimensions in m. -->
+  <xacro:macro name="camera_mount" params="parent name:='camera'">
+    <link name="${name}_mount_link">
+      <xacro:camera_bracket_box xyz="0 -0.040 0.028" size="0.030 0.006 0.032"/>
+      <xacro:camera_bracket_box xyz="0 -0.078 0.020" size="0.030 0.070 0.008"/>
+      <xacro:camera_bracket_box xyz="0 -0.102 0.038" size="0.024 0.018 0.028"/>
+      <!-- Composite box inertia at the centre of mass, density 2700 kg/m^3. -->
+      <inertial>
+        <origin xyz="0 -0.0800609418283 0.0276121883657"/>
+        <mass value="0.0935712"/>
+        <inertia ixx="7.01794451767e-05" iyy="1.59936870914e-05" izz="6.64578412853e-05"
+                 ixy="0" ixz="0" iyz="7.91299545706e-06"/>
+      </inertial>
+    </link>
+    <joint name="${name}_mount_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${name}_mount_link"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+    <gazebo reference="${name}_mount_link"><material>Gazebo/Grey</material></gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="camera_bracket_box" params="xyz size">
+    <visual>
+      <origin xyz="${xyz}"/>
+      <geometry><box size="${size}"/></geometry>
+      <material name="camera_bracket_metal"><color rgba="0.60 0.64 0.69 1"/></material>
+    </visual>
+    <collision>
+      <origin xyz="${xyz}"/>
+      <geometry><box size="${size}"/></geometry>
+    </collision>
+  </xacro:macro>
+</robot>

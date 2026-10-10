@@ -247,7 +247,7 @@
       <child link="flange" />
     </joint>
     
-    <!-- Original tool orientation; camera stays on this mounting frame. -->
+    <!-- Tool orientation shared by the gripper and camera assembly. -->
     <link name="tool_mount" />
     <joint name="flange-tool_mount" type="fixed">
       <origin xyz="0 0 0" rpy="0 ${pi/2} 0" />
@@ -272,8 +272,12 @@
     <!-- ==================== 相机 ==================== -->
     <xacro:include filename="$(find crx_description)/urdf/camera/camera.xacro"/>
 
-    <xacro:camera_rgbd parent="tool_mount" name="camera">
-     <origin xyz="0 -0.08 0.02" rpy="0 -1.5708 0"/>
+    <xacro:include filename="$(find crx_description)/urdf/camera/camera_mount.xacro"/>
+    <xacro:camera_mount parent="robotiq_85_base_link" name="camera"/>
+    <!-- Body centre 100 mm to the side, 60 mm forward of the gripper base.
+         Aim local X at the grasp reference, 145 mm along the gripper Z axis. -->
+    <xacro:camera_rgbd parent="camera_mount_link" name="camera">
+      <origin xyz="0 -0.100 0.060" rpy="0 ${-atan2(0.145-0.060, 0.100)} ${pi/2}"/>
     </xacro:camera_rgbd>
 
   </xacro:macro>

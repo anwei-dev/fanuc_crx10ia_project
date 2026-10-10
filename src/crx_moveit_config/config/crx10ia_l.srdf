@@ -81,4 +81,7 @@
     <disable_collisions link1="robotiq_85_right_knuckle_link" link2="robotiq_85_right_finger_link" reason="Adjacent"/>
     <disable_collisions link1="robotiq_85_right_finger_link" link2="robotiq_85_right_finger_tip_link" reason="Adjacent"/>
     <disable_collisions link1="robotiq_85_right_inner_knuckle_link" link2="robotiq_85_right_finger_tip_link" reason="Adjacent"/>
+    <!-- Only intentional rigid mounting contacts are excluded. -->
+    <disable_collisions link1="robotiq_85_base_link" link2="camera_mount_link" reason="Adjacent"/>
+    <disable_collisions link1="camera_mount_link" link2="camera_link" reason="Adjacent"/>
 </robot>

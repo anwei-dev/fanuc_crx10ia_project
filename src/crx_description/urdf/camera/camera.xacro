@@ -1,92 +1,87 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-
-  <!-- ==================== 相机参数 ==================== -->
-  <xacro:property name="camera_width"  value="0.03"/>
-  <xacro:property name="camera_height" value="0.025"/>
-  <xacro:property name="camera_depth"  value="0.02"/>
-  <xacro:property name="camera_mass"   value="0.05"/>
-
-  <!-- ==================== 相机宏 ==================== -->
-  <!-- parent: 父 link 名称，例如 tool0 -->
-  <!-- name:   相机前缀，默认 camera -->
+  <!-- Generic short-range RGB-D simulation camera, not a specific hardware model.
+       Body axes follow REP-103; local X points through the front lens. -->
   <xacro:macro name="camera_rgbd" params="parent name:='camera' *origin">
+    <xacro:property name="depth" value="0.026"/>
+    <xacro:property name="width" value="0.080"/>
+    <xacro:property name="height" value="0.028"/>
+    <xacro:property name="mass" value="0.12"/>
+    <xacro:property name="lens_x" value="0.016"/>
 
-    <!-- 相机物理 link -->
     <link name="${name}_link">
       <visual>
-        <geometry>
-          <box size="${camera_width} ${camera_height} ${camera_depth}"/>
-        </geometry>
-        <material name="gray">
-          <color rgba="0.5 0.5 0.5 1.0"/>
-        </material>
+        <geometry><box size="${depth} ${width} ${height}"/></geometry>
+        <material name="${name}_housing"><color rgba="0.22 0.25 0.29 1"/></material>
       </visual>
-
+      <visual>
+        <origin xyz="0.0135 0 0"/>
+        <geometry><box size="0.001 0.076 0.024"/></geometry>
+        <material name="${name}_front"><color rgba="0.025 0.03 0.04 1"/></material>
+      </visual>
+      <!-- Three recessed-looking lenses make the viewing direction visible. -->
+      <xacro:camera_lens name="${name}" y="0" radius="0.007"/>
+      <xacro:camera_lens name="${name}" y="0.026" radius="0.006"/>
+      <xacro:camera_lens name="${name}" y="-0.026" radius="0.006"/>
       <collision>
-        <geometry>
-          <box size="${camera_width} ${camera_height} ${camera_depth}"/>
-        </geometry>
+        <origin xyz="0.0015 0 0"/>
+        <geometry><box size="0.029 ${width} ${height}"/></geometry>
       </collision>
-
       <inertial>
-        <mass value="${camera_mass}"/>
-        <inertia
-          ixx="${camera_mass*(camera_height*camera_height + camera_depth*camera_depth)/12}"
-          iyy="${camera_mass*(camera_width*camera_width   + camera_depth*camera_depth)/12}"
-          izz="${camera_mass*(camera_width*camera_width   + camera_height*camera_height)/12}"
-          ixy="0" ixz="0" iyz="0"/>
+        <mass value="${mass}"/>
+        <inertia ixx="${mass*(width*width+height*height)/12}"
+                 iyy="${mass*(depth*depth+height*height)/12}"
+                 izz="${mass*(depth*depth+width*width)/12}"
+                 ixy="0" ixz="0" iyz="0"/>
       </inertial>
     </link>
-
-    <!-- 相机固定到父 link -->
     <joint name="${name}_joint" type="fixed">
       <parent link="${parent}"/>
-      <child  link="${name}_link"/>
+      <child link="${name}_link"/>
       <xacro:insert_block name="origin"/>
     </joint>
 
-    <!-- 光学坐标系：Z 向前，X 向右，Y 向下 -->
-    <link name="${name}_optical_frame"/>
-
-    <joint name="${name}_optical_joint" type="fixed">
+    <!-- Put the lens offset in a fixed joint. Gazebo Classic's URDF reduction
+         replaces a sensor-local pose, so a sensor pose alone loses this offset. -->
+    <link name="${name}_sensor_frame"/>
+    <joint name="${name}_sensor_joint" type="fixed">
       <parent link="${name}_link"/>
-      <child  link="${name}_optical_frame"/>
-      <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+      <child link="${name}_sensor_frame"/>
+      <origin xyz="${lens_x} 0 0" rpy="0 0 0"/>
     </joint>
-
-    <!-- ==================== Gazebo 深度相机 ==================== -->
-    <gazebo reference="${name}_link">
+    <!-- Optical Z is forward, X right, Y down; origin is at the centre lens. -->
+    <link name="${name}_optical_frame"/>
+    <joint name="${name}_optical_joint" type="fixed">
+      <parent link="${name}_sensor_frame"/>
+      <child link="${name}_optical_frame"/>
+      <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+    <gazebo reference="${name}_sensor_frame">
       <sensor name="${name}" type="depth">
+        <!-- Gazebo cameras look along local X, unlike the ROS optical frame. -->
+        <pose>0 0 0 0 0 0</pose>
         <always_on>true</always_on>
         <update_rate>30.0</update_rate>
-
         <camera>
-          <horizontal_fov>1.047198</horizontal_fov>  <!-- 约 60 度 -->
-          <image>
-            <width>640</width>
-            <height>480</height>
-            <format>R8G8B8</format>
-          </image>
-          <clip>
-            <near>0.1</near>
-            <far>10.0</far>
-          </clip>
+          <horizontal_fov>${75*pi/180}</horizontal_fov>
+          <image><width>640</width><height>480</height><format>R8G8B8</format></image>
+          <clip><near>0.03</near><far>2.0</far></clip>
         </camera>
-
-        <plugin name="${name}_controller"
-                filename="libgazebo_ros_camera.so">
-          <alwaysOn>true</alwaysOn>
-          <cameraName>${name}</cameraName>
+        <plugin name="${name}_controller" filename="libgazebo_ros_camera.so">
+          <camera_name>${name}</camera_name>
           <frame_name>${name}_optical_frame</frame_name>
-          <min_depth>0.1</min_depth>
-          <max_depth>10.0</max_depth>
-          <pointCloudCutoff>0.1</pointCloudCutoff>
-          <pointCloudCutoffMax>10.0</pointCloudCutoffMax>
+          <min_depth>0.03</min_depth>
+          <max_depth>2.0</max_depth>
         </plugin>
       </sensor>
     </gazebo>
-
   </xacro:macro>
 
+  <xacro:macro name="camera_lens" params="name y radius">
+    <visual>
+      <origin xyz="0.015 ${y} 0" rpy="0 ${pi/2} 0"/>
+      <geometry><cylinder radius="${radius}" length="0.002"/></geometry>
+      <material name="${name}_glass"><color rgba="0.08 0.35 0.55 1"/></material>
+    </visual>
+  </xacro:macro>
 </robot>
