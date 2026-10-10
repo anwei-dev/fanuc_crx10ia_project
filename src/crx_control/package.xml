@@ -3,7 +3,7 @@
 <package format="3">
   <name>crx_control</name>
   <version>0.1.0</version>
-  <description>ros2_control hardware interfaces (real robot, mock, Gazebo) and controller configuration for the FANUC CRX-10iA/L robot.</description>
+  <description>Gazebo ros2_control integration and controller configuration for the CRX-10iA/L simulation.</description>
   <maintainer email="user@todo.todo">user</maintainer>
   <license>Apache-2.0</license>
 

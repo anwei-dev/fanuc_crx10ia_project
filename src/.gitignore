@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+install/
+log/
+# Local experiment data; small curated test fixtures can be tracked separately.
+/artifacts/
+/datasets/
+*.db3
+*.mcap

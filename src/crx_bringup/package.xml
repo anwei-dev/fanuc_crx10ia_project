@@ -3,7 +3,7 @@
 <package format="3">
   <name>crx_bringup</name>
   <version>0.1.0</version>
-  <description>Unified launch orchestration for the FANUC CRX-10iA/L robot: visualization, Gazebo simulation, MoveIt and real-hardware bringup.</description>
+  <description>Simulation and visualization entry points for the CRX-10iA/L manipulation project.</description>
   <maintainer email="user@todo.todo">user</maintainer>
   <license>Apache-2.0</license>
 
@@ -23,6 +23,9 @@
   <exec_depend>moveit_ros_move_group</exec_depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+
+  <test_depend>ament_cmake_pytest</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

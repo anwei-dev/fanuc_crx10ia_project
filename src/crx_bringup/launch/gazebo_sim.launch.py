@@ -1,109 +1,100 @@
+"""Start the simulation, then activate controllers after a successful spawn."""
+
+from functools import partial
 import os
 
 from launch import LaunchDescription
-from launch.actions import RegisterEventHandler, DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import (
+    DeclareLaunchArgument, EmitEvent, IncludeLaunchDescription, LogInfo,
+    RegisterEventHandler, SetEnvironmentVariable,
+)
 from launch.event_handlers import OnProcessExit
-from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, LaunchConfiguration, PythonExpression
-
+from launch.events import Shutdown
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import (
+    Command, EnvironmentVariable, FindExecutable, LaunchConfiguration,
+    PathJoinSubstitution, PythonExpression,
+)
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 
 
-ARGUMENTS = [
-    DeclareLaunchArgument('name', default_value='', description='NAME_SPACE'),
-    DeclareLaunchArgument('model', default_value='crx10ia_l', description='ROBOT_MODEL'),
-    DeclareLaunchArgument('headless', default_value='false', description='Headless Gazebo (no GUI)'),
-    DeclareLaunchArgument('x', default_value='0', description='Location x on Gazebo'),
-    DeclareLaunchArgument('y', default_value='0', description='Location y on Gazebo'),
-    DeclareLaunchArgument('z', default_value='0', description='Location z on Gazebo'),
-    DeclareLaunchArgument('R', default_value='0', description='Location Roll on Gazebo'),
-    DeclareLaunchArgument('P', default_value='0', description='Location Pitch on Gazebo'),
-    DeclareLaunchArgument('Y', default_value='0', description='Location Yaw on Gazebo'),
-]
+def on_spawn_exit(event, context, *, controllers):
+    if event.returncode != 0:
+        reason = f"Robot spawn failed (exit {event.returncode}); controllers were not started."
+        return [LogInfo(msg=f"ERROR: {reason}"), EmitEvent(event=Shutdown(reason=reason))]
+    return [controllers]
 
-ENVIRONMENT = [
-    SetEnvironmentVariable(name='GAZEBO_MODEL_PATH', value=os.path.dirname(get_package_share_directory("crx_description"))),
-    SetEnvironmentVariable(
-        name='GAZEBO_RESOURCE_PATH',
-        value=os.pathsep.join(filter(None, [
-            get_package_share_directory('crx_description'),
-            os.environ.get('GAZEBO_RESOURCE_PATH', ''),
-        ])),
-    ),
-]
+
+def on_controllers_exit(event, context):
+    if event.returncode != 0:
+        reason = f"Controller activation failed (exit {event.returncode})."
+        return [LogInfo(msg=f"ERROR: {reason}"), EmitEvent(event=Shutdown(reason=reason))]
+    return []
 
 
 def generate_launch_description():
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            PathJoinSubstitution(
-                [
-                    FindPackageShare("crx_control"),
-                    "urdf",
-                    "crx10ia_l_gazebo.xacro",
-                ]
-            ),
-        ]
+    description_share = get_package_share_directory("crx_description")
+    arguments = [
+        DeclareLaunchArgument("model", default_value="crx10ia_l",
+                              description="Gazebo entity name (not a robot variant)."),
+        DeclareLaunchArgument("headless", default_value="false", choices=["true", "false"],
+                              description="Disable the Gazebo GUI."),
+        DeclareLaunchArgument("world", default_value=PathJoinSubstitution(
+            [FindPackageShare("gazebo_ros"), "worlds", "empty.world"]),
+            description="Gazebo Classic world file."),
+    ]
+    for name in ("x", "y", "z", "R", "P", "Y"):
+        arguments.append(DeclareLaunchArgument(
+            name, default_value="0", description="Gazebo spawn pose; use defaults with MoveIt."))
+
+    # Preserve paths provided by the caller. Resolve them at launch execution time.
+    environment = [
+        SetEnvironmentVariable("GAZEBO_MODEL_PATH", [
+            os.path.dirname(description_share), os.pathsep,
+            EnvironmentVariable("GAZEBO_MODEL_PATH", default_value=""),
+        ]),
+        SetEnvironmentVariable("GAZEBO_RESOURCE_PATH", [
+            description_share, os.pathsep,
+            EnvironmentVariable("GAZEBO_RESOURCE_PATH", default_value=""),
+        ]),
+    ]
+    description = Command([
+        PathJoinSubstitution([FindExecutable(name="xacro")]), " ",
+        PathJoinSubstitution([FindPackageShare("crx_control"), "urdf", "crx10ia_l_gazebo.xacro"]),
+    ])
+    state_publisher = Node(
+        package="robot_state_publisher", executable="robot_state_publisher", output="screen",
+        parameters=[{"robot_description": ParameterValue(description, value_type=str),
+                     "use_sim_time": True}],
     )
-
-    robot_description = {"robot_description": ParameterValue(robot_description_content, value_type=str)}
-
-    node_robot_state_publisher = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        output="screen",
-        parameters=[robot_description, {"use_sim_time": True}],
+    controllers = Node(
+        package="controller_manager", executable="spawner", output="screen",
+        arguments=["joint_state_broadcaster", "manipulator_controller", "gripper_controller",
+                   "--controller-manager-timeout", "60"],
     )
-
-    # Spawner waits for the controller manager created by the Gazebo plugin.
-    spawn_controllers = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["joint_state_broadcaster", "manipulator_controller",
-                   "gripper_controller", "--controller-manager-timeout", "60"],
-        output="screen",
-    )
-
     gazebo = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([FindPackageShare("gazebo_ros"), '/launch/gazebo.launch.py']),
-                launch_arguments={"gui": PythonExpression(["'false' if '", LaunchConfiguration('headless'), "'.lower() == 'true' else 'true'"])}.items()
-             )
-
-    gz_spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
-                        arguments=[
-                            "-topic",
-                            "robot_description",
-                            "-entity",
-                            LaunchConfiguration('model'),
-                            "-x",
-                            LaunchConfiguration('x'),
-                            "-y",
-                            LaunchConfiguration('y'),
-                            "-z",
-                            LaunchConfiguration('z'),
-                            "-R",
-                            LaunchConfiguration('R'),
-                            "-P",
-                            LaunchConfiguration('P'),
-                            "-Y",
-                            LaunchConfiguration('Y'),
-                            "-timeout", "60",
-                        ],
-                        output='screen')
-
-    return LaunchDescription(ENVIRONMENT + ARGUMENTS + [
-        node_robot_state_publisher,
-        gazebo,
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=gz_spawn_entity,
-                on_exit=[spawn_controllers],
-            )
-        ),
-        gz_spawn_entity,
+        PythonLaunchDescriptionSource([FindPackageShare("gazebo_ros"), "/launch/gazebo.launch.py"]),
+        launch_arguments={
+            "gui": PythonExpression(["'false' if '", LaunchConfiguration("headless"),
+                                     "' == 'true' else 'true'"]),
+            "world": LaunchConfiguration("world"),
+        }.items(),
+    )
+    spawn_arguments = ["-topic", "robot_description", "-entity", LaunchConfiguration("model")]
+    for name in ("x", "y", "z", "R", "P", "Y"):
+        spawn_arguments.extend([f"-{name}", LaunchConfiguration(name)])
+    spawn = Node(
+        package="gazebo_ros", executable="spawn_entity.py", output="screen",
+        arguments=spawn_arguments + ["-timeout", "60"],
+    )
+    return LaunchDescription(arguments + environment + [
+        state_publisher, gazebo,
+        RegisterEventHandler(OnProcessExit(
+            target_action=spawn, on_exit=partial(on_spawn_exit, controllers=controllers))),
+        RegisterEventHandler(OnProcessExit(
+            target_action=controllers, on_exit=on_controllers_exit)),
+        spawn,
     ])

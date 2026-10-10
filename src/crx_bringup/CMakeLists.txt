@@ -3,8 +3,13 @@ project(crx_bringup)
 
 find_package(ament_cmake REQUIRED)
 
-install(DIRECTORY launch config
+install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
 )
+
+if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(launch_contracts test/test_launch_contracts.py)
+endif()
 
 ament_package()
