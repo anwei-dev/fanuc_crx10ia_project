@@ -1,0 +1,15 @@
+fixed_pick_place:
+  ros__parameters:
+    use_sim_time: true
+    # World coordinates in metres. The table top is z=0.400.
+    point_a: [0.65, -0.20, 0.42]
+    point_b: [0.65, 0.20, 0.42]
+    cube_size: 0.04
+    approach_height: 0.18
+    # Fixed TCP lies slightly below the centre of the fingertip contact region.
+    tcp_above_cube: 0.005
+    gripper_open: 0.0
+    gripper_grasp: 0.45
+    velocity_scaling: 0.15
+    acceleration_scaling: 0.15
+    position_tolerance: 0.015

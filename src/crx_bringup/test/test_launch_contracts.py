@@ -79,3 +79,29 @@ def test_controller_activation_failure_shuts_down():
     assert module.on_controllers_exit(SimpleNamespace(returncode=0), None) == []
     assert any(isinstance(action, EmitEvent) for action in
                module.on_controllers_exit(SimpleNamespace(returncode=1), None))
+
+
+@pytest.mark.parametrize("enabled", ["true", "false"])
+def test_pick_place_cube_scene_and_automatic_execution(enabled):
+    description, context = prepare("fixed_pick_place.launch.py", run_demo=enabled)
+    world = context.launch_configurations["world"]
+    assert world.endswith("/crx_manipulation/worlds/pick_place.world")
+    programs = [action for action in description.entities if isinstance(action, Node)
+                and perform_substitutions(context, normalize_to_list_of_substitutions(action.node_executable)) == "fixed_pick_place"]
+    assert len(programs) == 1
+    assert programs[0].condition.evaluate(context) == (enabled == "true")
+    context.environment["GAZEBO_PLUGIN_PATH"] = "/tmp/external_plugins"
+    for action in description.entities:
+        if isinstance(action, SetEnvironmentVariable):
+            action.execute(context)
+    assert context.environment["GAZEBO_PLUGIN_PATH"].split(":")[-1] == "/tmp/external_plugins"
+    assert "crx_manipulation" in context.environment["GAZEBO_PLUGIN_PATH"]
+
+
+def test_generic_demo_has_no_pick_place_program():
+    description, context = prepare("moveit_demo.launch.py")
+    assert context.launch_configurations["world"].endswith("/gazebo_ros/worlds/empty.world")
+    executables = [perform_substitutions(context, normalize_to_list_of_substitutions(a.node_executable))
+                   for a in description.entities if isinstance(a, Node)]
+    assert executables == ["move_group", "rviz2"]
+    assert not any(isinstance(a, SetEnvironmentVariable) for a in description.entities)

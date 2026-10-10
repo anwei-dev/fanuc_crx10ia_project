@@ -6,16 +6,17 @@ crx_source_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 crx_workspace_dir="$(dirname -- "$crx_source_dir")"
 crx_output_dir="${CRX_OUTPUT_DIR:-$crx_workspace_dir}"
 crx_ros_setup="/opt/ros/humble/setup.bash"
-crx_packages=(crx_description crx_control crx_moveit_config crx_bringup)
+crx_packages=(crx_description crx_control crx_moveit_config crx_bringup crx_manipulation)
 
 usage() {
     cat <<'HELP'
-Usage: bash src/scripts/dev.sh <build|test|check|sim|demo> [launch arguments...]
-  build   Build the four simulation packages with tests enabled.
+Usage: bash src/scripts/dev.sh <build|test|check|sim|demo|pick> [launch arguments...]
+  build   Build the simulation packages with tests enabled.
   test    Run registered tests and print their results (build first).
   check   Build and test.
   sim     Launch Gazebo only.
   demo    Launch Gazebo + MoveIt + RViz.
+  pick    Launch the fixed cube A-to-B grasp demonstration.
 CRX_OUTPUT_DIR selects an absolute directory for build/install/log outputs.
 Example: bash src/scripts/dev.sh demo headless:=true rviz:=false
 HELP
@@ -24,7 +25,7 @@ HELP
 crx_command="${1:-help}"
 case "$crx_command" in
     help|-h|--help) usage; exit 0 ;;
-    build|test|check|sim|demo) shift ;;
+    build|test|check|sim|demo|pick) shift ;;
     *) usage >&2; exit 2 ;;
 esac
 if [[ "$crx_output_dir" != /* ]]; then
@@ -75,10 +76,12 @@ case "$crx_command" in
             check) build; test_project ;;
         esac
         ;;
-    sim|demo)
+    sim|demo|pick)
         load_overlay
         if [[ "$crx_command" == sim ]]; then
             exec ros2 launch crx_bringup gazebo_sim.launch.py "$@"
+        elif [[ "$crx_command" == pick ]]; then
+            exec ros2 launch crx_bringup fixed_pick_place.launch.py "$@"
         else
             exec ros2 launch crx_bringup moveit_demo.launch.py "$@"
         fi
