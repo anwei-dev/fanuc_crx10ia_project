@@ -12,13 +12,13 @@
 | `crx_description/meshes/robotiq/`（新增） | 2F-85 可视化/碰撞网格、来源说明与 LICENSE |
 | `crx_description/urdf/crx10ia_l/crx10ia_l_macro.xacro` | 安装夹爪、增加 tool_mount，移动 tcp；相机安装已按新设计更新 |
 | `crx_description/package.xml` | 补充引入资源的 BSD-3-Clause 许可 |
-| `crx_description/launch/view_robot.launch.py` | 显式将 robot_description 作为字符串传递 |
+| `crx_description/launch/robot_preview.launch.py` | 显式将 robot_description 作为字符串传递 |
 | `crx_control/urdf/robotiq_gazebo_control.xacro`（新增） | Gazebo 控制接口和五个联动关系 |
 | `crx_control/urdf/crx_gazebo.xacro` | 将夹爪加入现有 GazeboSystem，并修正限位表达式缺少 `$` 的问题 |
 | `crx_control/urdf/crx10ia_l_gazebo.xacro` | 将机械臂底座固定到 world，并抬高 2 mm 避免底座穿入地面 |
 | `crx_control/config/ros2_controllers.yaml` | 增加单关节 JointTrajectoryController，按时间插值开合 |
 | `crx_control/package.xml` | 复用 joint_trajectory_controller，无需 gripper_controllers |
-| `crx_bringup/launch/gazebo_sim.launch.py` | 修正模型话题参数、显式字符串参数、自动加载三个控制器 |
+| `crx_bringup/launch/gazebo_simulation.launch.py` | 修正模型话题参数、显式字符串参数、自动加载三个控制器 |
 | `crx_moveit_config/config/crx10ia_l.urdf.xacro` | 与 Gazebo 使用同一模型 |
 | `crx_moveit_config/config/crx10ia_l.srdf` | 增加 gripper 规划组、末端执行器、open/closed 姿态和机械连接处的碰撞豁免 |
 | `crx_moveit_config/config/moveit_controllers.yaml` | 绑定夹爪 FollowJointTrajectory action，清理原有重复键 |
@@ -26,7 +26,7 @@
 | `crx_moveit_config/config/ompl_planning.yaml` | 夹爪规划组使用 RRTConnect |
 
 现有 CMakeLists.txt 已安装整个 urdf、meshes、config 和 launch 目录，无需修改。
-`moveit_demo.launch.py` 已组合 Gazebo 与 MoveIt，无需增加单独夹爪启动文件。
+`gazebo_moveit.launch.py` 已组合 Gazebo 与 MoveIt，无需增加单独夹爪启动文件。
 
 ## 安装坐标与控制值
 
@@ -51,11 +51,11 @@ cd /home/anl/git/bot/my_ws
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install --packages-select crx_description crx_control crx_moveit_config crx_bringup
 source install/setup.bash
-ros2 launch crx_bringup moveit_demo.launch.py
+ros2 launch crx_bringup gazebo_moveit.launch.py
 ```
 
-只看模型：`ros2 launch crx_bringup view_robot.launch.py`。
-只启动仿真：`ros2 launch crx_bringup gazebo_sim.launch.py`。
+只看模型：`ros2 launch crx_bringup robot_preview.launch.py`。
+只启动仿真：`ros2 launch crx_bringup gazebo_simulation.launch.py`。
 无 Gazebo 界面：在后一条命令后加 `headless:=true`。
 
 在另一个已 source 工作空间的终端检查控制器：

@@ -2,7 +2,7 @@
 
 ## 当前维护范围
 
-维护 `crx_bringup/moveit_demo.launch.py` 和 `gazebo_sim.launch.py` 两个仿真入口。
+维护 `crx_bringup/gazebo_moveit.launch.py` 和 `gazebo_simulation.launch.py` 两个仿真入口。
 当前以单机械臂、固定世界基座为范围，不引入真实设备适配、多机器人命名空间或插件框架。
 保留的纯软件 mock 模型和 MoveIt Setup Assistant 生成入口不视为本项目的验证入口。
 `gazebo_sim` 中原先未生效的 `name` 参数已移除；

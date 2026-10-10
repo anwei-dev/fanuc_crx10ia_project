@@ -79,11 +79,11 @@ case "$crx_command" in
     sim|demo|pick)
         load_overlay
         if [[ "$crx_command" == sim ]]; then
-            exec ros2 launch crx_bringup gazebo_sim.launch.py "$@"
+            exec ros2 launch crx_bringup gazebo_simulation.launch.py "$@"
         elif [[ "$crx_command" == pick ]]; then
-            exec ros2 launch crx_bringup fixed_pick_place.launch.py "$@"
+            exec ros2 launch crx_bringup cube_pick_place.launch.py "$@"
         else
-            exec ros2 launch crx_bringup moveit_demo.launch.py "$@"
+            exec ros2 launch crx_bringup gazebo_moveit.launch.py "$@"
         fi
         ;;
 esac

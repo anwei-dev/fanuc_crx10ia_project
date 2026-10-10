@@ -51,13 +51,13 @@ bash src/scripts/dev.sh demo world:=/absolute/path/to/table.world
 
 ```bash
 source install/setup.bash
-ros2 launch crx_bringup moveit_demo.launch.py
-ros2 launch crx_bringup moveit_demo.launch.py --show-args
+ros2 launch crx_bringup gazebo_moveit.launch.py
+ros2 launch crx_bringup gazebo_moveit.launch.py --show-args
 ```
 
 `headless` 只控制 Gazebo GUI，`rviz` 单独控制 RViz。
-`moveit_demo.launch.py` 启动通用仿真与规划环境；
-`fixed_pick_place.launch.py` 加载立方体场景并自动搬运，使用 `run_demo:=false` 可仅查看搬运场景和手动规划。
+`gazebo_moveit.launch.py` 启动通用仿真与规划环境；
+`cube_pick_place.launch.py` 加载立方体场景并自动搬运，使用 `run_demo:=false` 可仅查看搬运场景和手动规划。
 组合仿真入口统一使用仿真时钟，`use_sim_time` 仅接受 `true`。
 Gazebo 单独入口的位姿参数用于独立仿真实验；组合 MoveIt 时应保持零位姿，
 否则模型生成位置与 MoveIt 的世界坐标可能不一致。

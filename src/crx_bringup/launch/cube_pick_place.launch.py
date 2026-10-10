@@ -30,7 +30,7 @@ def generate_launch_description():
     ])
     simulation = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution(
-            [FindPackageShare("crx_bringup"), "launch", "moveit_demo.launch.py"])),
+            [FindPackageShare("crx_bringup"), "launch", "gazebo_moveit.launch.py"])),
         launch_arguments={
             "headless": LaunchConfiguration("headless"),
             "rviz": LaunchConfiguration("rviz"),

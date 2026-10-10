@@ -32,7 +32,7 @@ def prepare(name, **overrides):
 @pytest.mark.parametrize("enabled", ["true", "false"])
 def test_demo_forwards_world_and_controls_rviz(enabled):
     world = "/tmp/custom scene.world"
-    description, context = prepare("moveit_demo.launch.py", rviz=enabled,
+    description, context = prepare("gazebo_moveit.launch.py", rviz=enabled,
                                    headless="true", world=world)
     include = next(a for a in description.entities if isinstance(a, IncludeLaunchDescription))
     arguments = {name: perform_substitutions(context, normalize_to_list_of_substitutions(value))
@@ -44,7 +44,7 @@ def test_demo_forwards_world_and_controls_rviz(enabled):
 
 @pytest.mark.parametrize("headless,gui", [("true", "false"), ("false", "true")])
 def test_gazebo_gui_and_world_arguments(headless, gui):
-    description, context = prepare("gazebo_sim.launch.py", headless=headless,
+    description, context = prepare("gazebo_simulation.launch.py", headless=headless,
                                    world="/tmp/table.world")
     include = next(a for a in description.entities if isinstance(a, IncludeLaunchDescription))
     arguments = {name: perform_substitutions(context, normalize_to_list_of_substitutions(value))
@@ -53,7 +53,7 @@ def test_gazebo_gui_and_world_arguments(headless, gui):
 
 
 def test_gazebo_preserves_existing_resource_paths():
-    description, context = prepare("gazebo_sim.launch.py")
+    description, context = prepare("gazebo_simulation.launch.py")
     context.environment["GAZEBO_MODEL_PATH"] = "/tmp/external_models"
     context.environment["GAZEBO_RESOURCE_PATH"] = "/tmp/external_materials"
     for action in description.entities:
@@ -65,7 +65,7 @@ def test_gazebo_preserves_existing_resource_paths():
 
 
 def test_spawn_failure_shuts_down_instead_of_starting_controllers():
-    module = load_launch("gazebo_sim.launch.py")
+    module = load_launch("gazebo_simulation.launch.py")
     controller = object()
     success = module.on_spawn_exit(SimpleNamespace(returncode=0), None, controllers=controller)
     assert success == [controller]
@@ -75,7 +75,7 @@ def test_spawn_failure_shuts_down_instead_of_starting_controllers():
 
 
 def test_controller_activation_failure_shuts_down():
-    module = load_launch("gazebo_sim.launch.py")
+    module = load_launch("gazebo_simulation.launch.py")
     assert module.on_controllers_exit(SimpleNamespace(returncode=0), None) == []
     assert any(isinstance(action, EmitEvent) for action in
                module.on_controllers_exit(SimpleNamespace(returncode=1), None))
@@ -83,7 +83,7 @@ def test_controller_activation_failure_shuts_down():
 
 @pytest.mark.parametrize("enabled", ["true", "false"])
 def test_pick_place_cube_scene_and_automatic_execution(enabled):
-    description, context = prepare("fixed_pick_place.launch.py", run_demo=enabled)
+    description, context = prepare("cube_pick_place.launch.py", run_demo=enabled)
     world = context.launch_configurations["world"]
     assert world.endswith("/crx_manipulation/worlds/pick_place.world")
     programs = [action for action in description.entities if isinstance(action, Node)
@@ -99,7 +99,7 @@ def test_pick_place_cube_scene_and_automatic_execution(enabled):
 
 
 def test_generic_demo_has_no_pick_place_program():
-    description, context = prepare("moveit_demo.launch.py")
+    description, context = prepare("gazebo_moveit.launch.py")
     assert context.launch_configurations["world"].endswith("/gazebo_ros/worlds/empty.world")
     executables = [perform_substitutions(context, normalize_to_list_of_substitutions(a.node_executable))
                    for a in description.entities if isinstance(a, Node)]

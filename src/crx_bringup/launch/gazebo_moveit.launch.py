@@ -29,7 +29,7 @@ def generate_launch_description():
 
     gazebo_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [FindPackageShare("crx_bringup"), "/launch/gazebo_sim.launch.py"]
+            [FindPackageShare("crx_bringup"), "/launch/gazebo_simulation.launch.py"]
         ),
         launch_arguments={
             "headless": LaunchConfiguration("headless"),

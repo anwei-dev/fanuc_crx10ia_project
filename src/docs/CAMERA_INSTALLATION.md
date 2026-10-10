@@ -94,7 +94,7 @@ cd /home/anl/git/bot/my_ws
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install --packages-select crx_description crx_control crx_moveit_config crx_bringup
 source install/setup.bash
-ros2 launch crx_bringup moveit_demo.launch.py
+ros2 launch crx_bringup gazebo_moveit.launch.py
 ```
 
 必须关闭原仿真后重新启动，运行中的 robot_description 不会自动替换。

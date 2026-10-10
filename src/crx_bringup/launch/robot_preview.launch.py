@@ -8,7 +8,7 @@ def generate_launch_description():
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                [FindPackageShare("crx_description"), "/launch/view_robot.launch.py"]
+                [FindPackageShare("crx_description"), "/launch/robot_preview.launch.py"]
             )
         ),
     ])

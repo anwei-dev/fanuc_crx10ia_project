@@ -29,7 +29,7 @@ bash src/scripts/dev.sh pick
 
 ```bash
 source install/setup.bash
-ros2 launch crx_bringup fixed_pick_place.launch.py
+ros2 launch crx_bringup cube_pick_place.launch.py
 ```
 
 关闭 Gazebo GUI 和 RViz：
@@ -87,7 +87,7 @@ MoveIt 的附着状态仅用于规划，Gazebo 物理关节才负责物体随夹
 - `crx_manipulation/src/cube_grasp_plugin.cpp`：受限物理附着服务。
 - `crx_manipulation/config/fixed_pick_place.yaml`：A/B、开度、运动速度、接近高度与容差。
 - `crx_manipulation/worlds/pick_place.world`：桌面、A/B 标记、立方体和状态查询插件。
-- `crx_bringup/launch/fixed_pick_place.launch.py`：场景与程序的组合启动。
+- `crx_bringup/launch/cube_pick_place.launch.py`：场景与程序的组合启动。
 
 改变 A 点、立方体尺寸或桌面时，同时更新 YAML 和 world；更改 B 点时同步更新桌面标记。
 当前模型、角度门限和场景针对 40 mm 立方体设计，不作为任意物体的通用抓取策略。

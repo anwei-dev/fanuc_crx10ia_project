@@ -60,7 +60,7 @@ def test_fixed_pick_place(tmp_path, monkeypatch):
     program = None
     with sim_log.open("w") as output, program_log.open("w") as program_output:
         simulation = subprocess.Popen([
-            "ros2", "launch", "crx_bringup", "fixed_pick_place.launch.py",
+            "ros2", "launch", "crx_bringup", "cube_pick_place.launch.py",
             "headless:=true", "rviz:=false", "run_demo:=false",
         ], stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
         try:
