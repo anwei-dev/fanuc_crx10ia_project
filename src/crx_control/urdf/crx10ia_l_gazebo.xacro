@@ -5,6 +5,13 @@
   <xacro:include filename="$(find crx_control)/urdf/crx_gazebo.xacro"/>
 
   <xacro:crx10ia_l />
+  <!-- Anchor the pedestal while keeping all arm/gripper joints dynamic. -->
+  <link name="world"/>
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
   <xacro:crx_ros2_control_gazebo />
 
 </robot>

@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+        <xacro:include filename="$(find crx_control)/urdf/robotiq_gazebo_control.xacro"/>
         <gazebo>
             <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
             <parameters>$(find crx_control)/config/ros2_controllers.yaml</parameters>
@@ -27,8 +28,8 @@
 
                 <joint name="J1">
                     <command_interface name="position">
-                        <param name="min">{-2*pi}</param>
-                        <param name="max">{2*pi}</param>
+                        <param name="min">${-2*pi}</param>
+                        <param name="max">${2*pi}</param>
                     </command_interface>
 
                     <command_interface name="effort">
@@ -44,8 +45,8 @@
 
                 <joint name="J2">
                     <command_interface name="position">
-                        <param name="min">{-2*pi}</param>
-                        <param name="max">{2*pi}</param>
+                        <param name="min">${-2*pi}</param>
+                        <param name="max">${2*pi}</param>
                     </command_interface>
 
                     <command_interface name="effort">
@@ -61,8 +62,8 @@
 
                 <joint name="J3">
                     <command_interface name="position">
-                        <param name="min">{-pi}</param>
-                        <param name="max">{pi}</param>
+                        <param name="min">${-pi}</param>
+                        <param name="max">${pi}</param>
                     </command_interface>
 
                     <command_interface name="effort">
@@ -78,8 +79,8 @@
 
                 <joint name="J4">
                     <command_interface name="position">
-                        <param name="min">{-2*pi}</param>
-                        <param name="max">{2*pi}</param>
+                        <param name="min">${-2*pi}</param>
+                        <param name="max">${2*pi}</param>
                     </command_interface>
 
                     <command_interface name="effort">
@@ -95,8 +96,8 @@
 
                 <joint name="J5">
                     <command_interface name="position">
-                        <param name="min">{-2*pi}</param>
-                        <param name="max">{2*pi}</param>
+                        <param name="min">${-2*pi}</param>
+                        <param name="max">${2*pi}</param>
                     </command_interface>
 
                     <command_interface name="effort">
@@ -112,8 +113,8 @@
 
                 <joint name="J6">
                     <command_interface name="position">
-                        <param name="min">{-2*pi}</param>
-                        <param name="max">{2*pi}</param>
+                        <param name="min">${-2*pi}</param>
+                        <param name="max">${2*pi}</param>
                     </command_interface>
 
                     <command_interface name="effort">
@@ -127,6 +128,7 @@
                     <state_interface name="velocity"/>
                 </joint>
 
+                <xacro:robotiq_gazebo_control/>
             </ros2_control>
 
         </xacro:macro>

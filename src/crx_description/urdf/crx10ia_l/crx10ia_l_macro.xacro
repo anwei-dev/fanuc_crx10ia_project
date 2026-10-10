@@ -247,18 +247,32 @@
       <child link="flange" />
     </joint>
     
-    <!-- tcp -->
-    <link name="tcp" />
-    <joint name="flange-tcp" type="fixed">
+    <!-- Original tool orientation; camera stays on this mounting frame. -->
+    <link name="tool_mount" />
+    <joint name="flange-tool_mount" type="fixed">
       <origin xyz="0 0 0" rpy="0 ${pi/2} 0" />
       <parent link="flange" />
-      <child link="tcp" />
+      <child link="tool_mount" />
+    </joint>
+
+    <xacro:include filename="$(find crx_description)/urdf/gripper/robotiq_2f_85.xacro"/>
+    <xacro:robotiq_2f_85 prefix="" parent="tool_mount">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:robotiq_2f_85>
+
+    <!-- Nominal grasp reference, 145 mm along the gripper's approach axis.
+         This reference is fixed; actual fingertip height varies with opening. -->
+    <link name="tcp"/>
+    <joint name="gripper-tcp" type="fixed">
+      <parent link="robotiq_85_base_link"/>
+      <child link="tcp"/>
+      <origin xyz="0 0 0.145" rpy="0 0 0"/>
     </joint>
 
     <!-- ==================== 相机 ==================== -->
     <xacro:include filename="$(find crx_description)/urdf/camera/camera.xacro"/>
 
-    <xacro:camera_rgbd parent="tcp" name="camera">
+    <xacro:camera_rgbd parent="tool_mount" name="camera">
      <origin xyz="0 -0.08 0.02" rpy="0 -1.5708 0"/>
     </xacro:camera_rgbd>
 

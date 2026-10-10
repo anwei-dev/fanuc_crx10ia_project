@@ -6,6 +6,7 @@
   <description>URDF/Xacro description, meshes and visualization config for the FANUC CRX-10iA/L robot.</description>
   <maintainer email="user@todo.todo">user</maintainer>
   <license>Apache-2.0</license>
+  <license>BSD-3-Clause</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

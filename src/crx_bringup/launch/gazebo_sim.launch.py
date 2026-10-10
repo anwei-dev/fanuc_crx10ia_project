@@ -1,12 +1,13 @@
 import os
 
-from launch import LaunchDescription, LaunchContext
-from launch.actions import RegisterEventHandler, DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable, ExecuteProcess
+from launch import LaunchDescription
+from launch.actions import RegisterEventHandler, DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, LaunchConfiguration, PythonExpression
 
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 
@@ -41,7 +42,7 @@ def generate_launch_description():
         ]
     )
 
-    robot_description = {"robot_description": robot_description_content}
+    robot_description = {"robot_description": ParameterValue(robot_description_content, value_type=str)}
 
     node_robot_state_publisher = Node(
         package="robot_state_publisher",
@@ -50,16 +51,13 @@ def generate_launch_description():
         parameters=[robot_description, {"use_sim_time": True}],
     )
 
-    load_joint_state_broadcaster = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'joint_state_broadcaster'],
-        output='screen'
-    )
-
-    load_manipulator_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'manipulator_controller'],
-        output='screen'
+    # Spawner waits for the controller manager created by the Gazebo plugin.
+    spawn_controllers = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_state_broadcaster", "manipulator_controller",
+                   "gripper_controller", "--controller-manager-timeout", "60"],
+        output="screen",
     )
 
     gazebo = IncludeLaunchDescription(
@@ -70,7 +68,7 @@ def generate_launch_description():
     gz_spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=[
                             "-topic",
-                            robot_description,
+                            "robot_description",
                             "-entity",
                             LaunchConfiguration('model'),
                             "-x",
@@ -92,17 +90,11 @@ def generate_launch_description():
     return LaunchDescription(ENVIRONMENT + ARGUMENTS + [
         node_robot_state_publisher,
         gazebo,
-        gz_spawn_entity,
         RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=gz_spawn_entity,
-                on_exit=[load_joint_state_broadcaster],
+                on_exit=[spawn_controllers],
             )
         ),
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=load_joint_state_broadcaster,
-                on_exit=[load_manipulator_controller],
-            )
-        ),
+        gz_spawn_entity,
     ])
