@@ -15,7 +15,7 @@
 | `crx_description/launch/view_robot.launch.py` | 显式将 robot_description 作为字符串传递 |
 | `crx_control/urdf/robotiq_gazebo_control.xacro`（新增） | Gazebo 控制接口和五个联动关系 |
 | `crx_control/urdf/crx_gazebo.xacro` | 将夹爪加入现有 GazeboSystem，并修正限位表达式缺少 `$` 的问题 |
-| `crx_control/urdf/crx10ia_l_gazebo.xacro` | 将机械臂底座固定到 world，防止仿真底座自由运动 |
+| `crx_control/urdf/crx10ia_l_gazebo.xacro` | 将机械臂底座固定到 world，并抬高 2 mm 避免底座穿入地面 |
 | `crx_control/config/ros2_controllers.yaml` | 增加单关节 JointTrajectoryController，按时间插值开合 |
 | `crx_control/package.xml` | 复用 joint_trajectory_controller，无需 gripper_controllers |
 | `crx_bringup/launch/gazebo_sim.launch.py` | 修正模型话题参数、显式字符串参数、自动加载三个控制器 |
@@ -119,3 +119,6 @@ MoveIt 开合规划、自碰撞矩阵及带物体抓取尚未完成运行验收�
 闭合轨迹，三项均成功。设定总时长为 2.5 秒时，实测 10%～90% 行程均为 2.000 秒，
 各采到约 200 个中间位置，相邻状态位置变化不超过 0.0032 rad；机械臂保持正常。
 此项验证覆盖轨迹执行，不代表已完成 MoveIt 抓取规划或物体接触验收。
+
+静止高频抖动已通过消除底座与地面的初始穿透修复，详见
+[抖动诊断与修复](docs/GAZEBO_JITTER_ANALYSIS.md)。

@@ -10,7 +10,9 @@
   <joint name="world_to_base" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <!-- The base collision mesh extends 0.826 mm below its origin. Leave
+         clearance above the ground to avoid fighting the fixed constraint. -->
+    <origin xyz="0 0 0.002" rpy="0 0 0"/>
   </joint>
   <xacro:crx_ros2_control_gazebo />
 
